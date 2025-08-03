@@ -7,7 +7,7 @@ Module Details
 - **Semester:** 2nd Semester 2025
 - **Due Date:** [Insert final due date here]
 
-## 👥 Group Members
+ Group Members
 - Sipho Nzapheza (Team Leader) – 202218888
 - Fika Samkelo Fayini – 202207134
 - Lemogang Rakwele – 202215867
