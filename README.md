@@ -5,7 +5,7 @@ Module Details
 - **Lecturer:** Dr. Silas Verkijika
 - **Institution:** Sol Plaatje University
 - **Semester:** 2nd Semester 2025
-- **Due Date:** [Insert final due date here]
+- **Due Date:** To be comfirmed 
 
  Group Members
 - Sipho Nzapheza (Team Leader) – 202218888
