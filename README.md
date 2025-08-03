@@ -45,3 +45,46 @@ Tech Stack
 
 ---
 
+ Key Features (To be implemented)
+ Tender Keyword Search & Filtering
+
+ Company Profile Creation & Updates
+
+ AI Tender Document Summarization
+
+ Readiness Scoring Engine
+
+ Workspace & Tender Tracking
+
+ Public API Exposure (Swagger docs)
+
+ Tiered SaaS Plan Control
+
+ Next Steps
+Finalize tech stack decisions
+
+Begin backend API development (FastAPI)
+
+Create test users and simulate workspaces
+
+Implement AI summarization logic and test API endpoints
+
+
+
+
+
+ NSED742 Project Progress Update – Tender Insight Hub 
+
+
+
+---
+
+
+
+
+
+
+
+
+
+
