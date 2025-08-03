@@ -1,6 +1,6 @@
-# 🧠 Tender Insight Hub – NSED742 Semester Project
+ Tender Insight Hub – NSED742 Semester Project
 
-## 📚 Module Details
+Module Details
 - **Module:** Software Engineering & Design (NSED742)
 - **Lecturer:** Dr. Silas Verkijika
 - **Institution:** Sol Plaatje University
