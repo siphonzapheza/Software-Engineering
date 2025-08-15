@@ -76,8 +76,40 @@ Implement AI summarization logic and test API endpoints
  NSED742 Project Progress Update – Tender Insight Hub 
 
 
+2025/08/15 Progress Update: 
+As the team leader for this week, I initiated our planning session by outlining a research task for all members. I instructed everyone to go home and conduct research on the Tender Insight Hub project, with a focus on:
 
----
+Identifying a clear problem statement based on the project requirements.
+
+Proposing a system design idea, including:
+
+1.Architecture diagram.
+
+2.Data flow diagram.
+
+3.Backend technology choice.
+
+4.Database technologies (SQL and NoSQL).
+
+5.Any other components required by the project.
+
+For targeted research responsibilities:
+
+Fika, Onthatile and Lemogang were assigned to research and recommend our backend technology stack.
+
+Myself and Sipho were tasked with researching and deciding on the frontend technology.
+
+Additionally, as a collective task, the entire team was responsible for determining which SQL and NoSQL databases we would use.
+
+Outcome of Decisions:
+
+1.Backend: FastAPI (Python).
+
+2.Frontend: React.
+
+3.SQL Database: MySQL.
+
+4.NoSQL Database: MongoDB.
 
 
 
