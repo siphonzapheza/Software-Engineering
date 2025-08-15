@@ -76,7 +76,7 @@ Implement AI summarization logic and test API endpoints
  NSED742 Project Progress Update – Tender Insight Hub 
 
 
-2025/08/15 Progress Update: 
+**2025/08/15 Progress Update:**
 As the team leader for this week, I initiated our planning session by outlining a research task for all members. I instructed everyone to go home and conduct research on the Tender Insight Hub project, with a focus on:
 
 Identifying a clear problem statement based on the project requirements.
