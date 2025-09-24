@@ -53,9 +53,9 @@ Tech Stack
 
 Backend: FastAPI (Python)
 
-Frontend: ReactJS / HTML / CSS / JavaScript (confirmed)
+Frontend: Django(Python)
 
-SQL Database: MySQL (for users, tenders, plans)
+SQL Database: Postgress(MySQL) (for users, tenders, plans)
 
 NoSQL Database: MongoDB (for summaries, logs, analytics)
 
@@ -121,6 +121,6 @@ Backend: FastAPI (Python)
 
 Frontend: ReactJS
 
-SQL Database: MySQL
+SQL Database: Postgress(MySQL)
 
 NoSQL Database: MongoDB
