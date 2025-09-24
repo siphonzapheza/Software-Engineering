@@ -1,0 +1,83 @@
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Buyer</th>
+                <th>Closing Date</th>
+                <th>Status</th>
+                <th>Tasks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>
+                    <a href="{% url 'tenders:tender_detail' item.tender.tender_id %}" class="fw-bold text-decoration-none">
+                        {{ item.tender.title|truncatechars:60 }}
+                    </a>
+                </td>
+                <td>{{ item.tender.buyer_name|truncatechars:30 }}</td>
+                <td>
+                    {% if item.tender.tender_period_end_date %}
+                        {% if item.tender.tender_period_end_date|date:'Y-m-d' < today %}
+                            <span class="badge bg-danger">Closed</span>
+                        {% else %}
+                            {{ item.tender.tender_period_end_date|date:"M d, Y" }}
+                            {% if item.tender.tender_period_end_date|date:'Y-m-d' < week_from_now %}
+                                <span class="badge bg-warning text-dark">Soon</span>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">Not specified</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.status == 'interested' %}
+                        <span class="badge bg-info">Interested</span>
+                    {% elif item.status == 'submitted' %}
+                        <span class="badge bg-success">Submitted</span>
+                    {% elif item.status == 'not_eligible' %}
+                        <span class="badge bg-danger">Not Eligible</span>
+                    {% elif item.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% with task_count=item.task_count %}
+                    {% with completed_count=item.completed_task_count %}
+                    {% if task_count > 0 %}
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ completed_count|floatformat:0 }}%;" 
+                                aria-valuenow="{{ completed_count|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ completed_count }}/{{ task_count }}
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="text-muted">No tasks</span>
+                    {% endif %}
+                    {% endwith %}
+                    {% endwith %}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{% url 'tenders:workspace_detail' item.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'tenders:tender_detail' item.tender.tender_id %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </a>
+                        <form method="post" action="{% url 'tenders:remove_from_workspace' item.tender.tender_id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to remove this tender from your workspace?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,156 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}Search Tenders - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Search Tenders</h1>
+        <p class="lead">Find public procurement opportunities that match your business needs.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="{% url 'tenders:results' %}">
+                    <div class="input-group mb-3">
+                        <input type="text" name="keywords" class="form-control form-control-lg" placeholder="Enter keywords (e.g., construction, security services)" value="{{ keywords }}" required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-3 mb-3">
+                            <label for="province" class="form-label">Province</label>
+                            <select name="province" id="province" class="form-select">
+                                <option value="">All Provinces</option>
+                                {% for province in provinces %}
+                                <option value="{{ province }}" {% if selected_province == province %}selected{% endif %}>{{ province }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="buyer" class="form-label">Buyer</label>
+                            <select name="buyer" id="buyer" class="form-select">
+                                <option value="">All Buyers</option>
+                                {% for buyer in buyers %}
+                                <option value="{{ buyer }}" {% if selected_buyer == buyer %}selected{% endif %}>{{ buyer }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="budget_range" class="form-label">Budget Range</label>
+                            <select name="budget_range" id="budget_range" class="form-select">
+                                <option value="">Any Budget</option>
+                                {% for range in budget_ranges %}
+                                <option value="{{ range.value }}" {% if selected_budget_range == range.value %}selected{% endif %}>{{ range.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="deadline" class="form-label">Deadline</label>
+                            <select name="deadline" id="deadline" class="form-select">
+                                <option value="">Any Deadline</option>
+                                {% for deadline in deadline_ranges %}
+                                <option value="{{ deadline.value }}" {% if selected_deadline == deadline.value %}selected{% endif %}>{{ deadline.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            Apply Filters
+                        </button>
+                        <a href="{% url 'tenders:search' %}" class="btn btn-outline-secondary">
+                            Clear Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results Section -->
+{% if keywords %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h2>Search Results</h2>
+        {% if tenders %}
+            <div class="row">
+                {% for tender in tenders %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ tender.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ tender.buyer }}</h6>
+                            <p class="card-text">{{ tender.description|truncatechars:150 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ tender.province }}</span>
+                                <span class="badge bg-info">R {{ tender.budget|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Deadline: {{ tender.deadline }}</small>
+                            <a href="{% url 'tenders:tender_detail' tender.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if tenders.has_other_pages %}
+            <nav aria-label="Search results pages" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if tenders.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?keywords={{ keywords }}&province={{ selected_province }}&buyer={{ selected_buyer }}&budget_range={{ selected_budget_range }}&deadline={{ selected_deadline }}&page={{ tenders.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in tenders.paginator.page_range %}
+                        {% if tenders.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?keywords={{ keywords }}&province={{ selected_province }}&buyer={{ selected_buyer }}&budget_range={{ selected_budget_range }}&deadline={{ selected_deadline }}&page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if tenders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?keywords={{ keywords }}&province={{ selected_province }}&buyer={{ selected_buyer }}&budget_range={{ selected_budget_range }}&deadline={{ selected_deadline }}&page={{ tenders.next_page_number }}">
+                            Next
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                No tenders found matching your search criteria. Please try different keywords or filters.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

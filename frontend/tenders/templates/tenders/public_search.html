@@ -1,0 +1,202 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}Browse Tenders - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Browse Public Tenders</h1>
+        <p class="lead">Discover public procurement opportunities. <a href="{% url 'tenders:register' %}">Sign up</a> for advanced features like readiness checks and team collaboration.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="{% url 'tenders:public_search' %}">
+                    <div class="input-group mb-3">
+                        <input type="text" name="keywords" class="form-control form-control-lg" placeholder="Enter keywords (e.g., construction, security services)" value="{{ keywords }}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-3 mb-3">
+                            <label for="province" class="form-label">Province</label>
+                            <select name="province" id="province" class="form-select">
+                                <option value="">All Provinces</option>
+                                {% for province in provinces %}
+                                <option value="{{ province }}" {% if selected_province == province %}selected{% endif %}>{{ province }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="buyer" class="form-label">Buyer</label>
+                            <select name="buyer" id="buyer" class="form-select">
+                                <option value="">All Buyers</option>
+                                {% for buyer in buyers %}
+                                <option value="{{ buyer }}" {% if selected_buyer == buyer %}selected{% endif %}>{{ buyer }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="budget_range" class="form-label">Budget Range</label>
+                            <select name="budget_range" id="budget_range" class="form-select">
+                                <option value="">Any Budget</option>
+                                {% for range in budget_ranges %}
+                                <option value="{{ range.value }}" {% if selected_budget_range == range.value %}selected{% endif %}>{{ range.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="deadline" class="form-label">Deadline</label>
+                            <select name="deadline" id="deadline" class="form-select">
+                                <option value="">Any Deadline</option>
+                                {% for deadline in deadline_ranges %}
+                                <option value="{{ deadline.value }}" {% if selected_deadline == deadline.value %}selected{% endif %}>{{ deadline.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            Apply Filters
+                        </button>
+                        <a href="{% url 'tenders:public_search' %}" class="btn btn-outline-secondary">
+                            Clear Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        {% if not has_search_params %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-search" style="font-size: 4rem; color: #6c757d;"></i>
+                </div>
+                <h3 class="text-muted mb-3">Start Your Search</h3>
+                <p class="text-muted mb-4">Use the search form above to find tender opportunities that match your criteria.</p>
+                <p class="text-muted small">Enter keywords, select filters, or choose specific criteria to discover relevant tenders.</p>
+            </div>
+        {% else %}
+            {% if keywords %}
+            <h2>Search Results for "{{ keywords }}"</h2>
+            {% else %}
+            <h2>Filtered Tender Results</h2>
+            {% endif %}
+            
+            {% if tenders %}
+            <p class="text-muted mb-3">Showing {{ tenders|length }} of {{ total_count }} tenders</p>
+            <div class="row">
+                {% for tender in tenders %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ tender.title|truncatechars:80 }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ tender.buyer_name }}</h6>
+                            <p class="card-text">{{ tender.description|truncatechars:150 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                {% if tender.province %}
+                                <span class="badge bg-primary">{{ tender.province }}</span>
+                                {% endif %}
+                                {% if tender.budget_max %}
+                                <span class="badge bg-info">{{ tender.value_currency }} {{ tender.budget_min|floatformat:0 }} - {{ tender.budget_max|floatformat:0 }}</span>
+                                {% endif %}
+                            </div>
+                            {% if tender.tender_period_end_date %}
+                            <p class="card-text"><small class="text-muted">Deadline: {{ tender.tender_period_end_date|date:"M d, Y" }}</small></p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <a href="{% url 'tenders:public_tender_detail' tender.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            <form method="post" action="{% url 'tenders:public_add_to_workspace' tender.tender_id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-plus-circle"></i> Add to Workspace
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Search results pages" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?keywords={{ keywords }}&province={{ selected_province }}&buyer={{ selected_buyer }}&budget_range={{ selected_budget_range }}&deadline={{ selected_deadline }}&page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in page_obj.paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?keywords={{ keywords }}&province={{ selected_province }}&buyer={{ selected_buyer }}&budget_range={{ selected_budget_range }}&deadline={{ selected_deadline }}&page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?keywords={{ keywords }}&province={{ selected_province }}&buyer={{ selected_buyer }}&budget_range={{ selected_budget_range }}&deadline={{ selected_deadline }}&page={{ page_obj.next_page_number }}">
+                            Next
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <h4>No tenders found</h4>
+                    <p>{% if keywords %}No tenders found matching your search criteria.{% else %}No tenders are currently available.{% endif %} Please try different keywords or filters.</p>
+                    <a href="{% url 'tenders:register' %}" class="btn btn-primary">Sign up to get notified of new tenders</a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="alert alert-light">
+            <h5><i class="bi bi-info-circle"></i> Want more features?</h5>
+            <p class="mb-2">Sign up for a free account to access:</p>
+            <ul class="mb-3">
+                <li>AI-powered readiness checks</li>
+                <li>Document analysis and summaries</li>
+                <li>Team collaboration tools</li>
+                <li>Advanced search filters</li>
+                <li>Tender notifications</li>
+            </ul>
+            <a href="{% url 'tenders:register' %}" class="btn btn-success">Create Free Account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

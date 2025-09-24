@@ -1,0 +1,369 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}Company Profile - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Company Profile</h1>
+        <p class="lead">Manage your company information to improve tender matching and readiness assessment</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Company Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'tenders:company_profile' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name" value="{{ profile.company_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="registration_number" class="form-label">Registration Number</label>
+                                <input type="text" class="form-control" id="registration_number" name="registration_number" value="{{ profile.registration_number }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="year_established" class="form-label">Year Established</label>
+                                <input type="number" class="form-control" id="year_established" name="year_established" value="{{ profile.year_established }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="company_size" class="form-label">Company Size</label>
+                                <select class="form-select" id="company_size" name="company_size">
+                                    <option value="micro" {% if profile.company_size == 'micro' %}selected{% endif %}>Micro (1-9 employees)</option>
+                                    <option value="small" {% if profile.company_size == 'small' %}selected{% endif %}>Small (10-49 employees)</option>
+                                    <option value="medium" {% if profile.company_size == 'medium' %}selected{% endif %}>Medium (50-249 employees)</option>
+                                    <option value="large" {% if profile.company_size == 'large' %}selected{% endif %}>Large (250+ employees)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ profile.address }}</textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city" value="{{ profile.city }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="province" class="form-label">Province</label>
+                                <select class="form-select" id="province" name="province">
+                                    <option value="" {% if not profile.province %}selected{% endif %}>Select Province</option>
+                                    <option value="Eastern Cape" {% if profile.province == 'Eastern Cape' %}selected{% endif %}>Eastern Cape</option>
+                                    <option value="Free State" {% if profile.province == 'Free State' %}selected{% endif %}>Free State</option>
+                                    <option value="Gauteng" {% if profile.province == 'Gauteng' %}selected{% endif %}>Gauteng</option>
+                                    <option value="KwaZulu-Natal" {% if profile.province == 'KwaZulu-Natal' %}selected{% endif %}>KwaZulu-Natal</option>
+                                    <option value="Limpopo" {% if profile.province == 'Limpopo' %}selected{% endif %}>Limpopo</option>
+                                    <option value="Mpumalanga" {% if profile.province == 'Mpumalanga' %}selected{% endif %}>Mpumalanga</option>
+                                    <option value="North West" {% if profile.province == 'North West' %}selected{% endif %}>North West</option>
+                                    <option value="Northern Cape" {% if profile.province == 'Northern Cape' %}selected{% endif %}>Northern Cape</option>
+                                    <option value="Western Cape" {% if profile.province == 'Western Cape' %}selected{% endif %}>Western Cape</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="postal_code" class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ profile.postal_code }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="website" class="form-label">Website</label>
+                                <input type="url" class="form-control" id="website" name="website" value="{{ profile.website }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Company Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ profile.description }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="logo" class="form-label">Company Logo</label>
+                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                        {% if profile.logo %}
+                        <div class="mt-2">
+                            <img src="{{ profile.logo.url }}" alt="Company Logo" class="img-thumbnail" style="max-height: 100px;">
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" id="remove_logo" name="remove_logo">
+                                <label class="form-check-label" for="remove_logo">Remove logo</label>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Business Classification</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="business_type" class="form-label">Business Type</label>
+                                <select class="form-select" id="business_type" name="business_type">
+                                    <option value="" {% if not profile.business_type %}selected{% endif %}>Select Business Type</option>
+                                    <option value="sole_proprietor" {% if profile.business_type == 'sole_proprietor' %}selected{% endif %}>Sole Proprietor</option>
+                                    <option value="partnership" {% if profile.business_type == 'partnership' %}selected{% endif %}>Partnership</option>
+                                    <option value="pty_ltd" {% if profile.business_type == 'pty_ltd' %}selected{% endif %}>Private Company (Pty) Ltd</option>
+                                    <option value="public_company" {% if profile.business_type == 'public_company' %}selected{% endif %}>Public Company</option>
+                                    <option value="npo" {% if profile.business_type == 'npo' %}selected{% endif %}>Non-Profit Organization</option>
+                                    <option value="cooperative" {% if profile.business_type == 'cooperative' %}selected{% endif %}>Cooperative</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tax_number" class="form-label">Tax Number</label>
+                                <input type="text" class="form-control" id="tax_number" name="tax_number" value="{{ profile.tax_number }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bbbee_level" class="form-label">B-BBEE Level</label>
+                                <select class="form-select" id="bbbee_level" name="bbbee_level">
+                                    <option value="" {% if not profile.bbbee_level %}selected{% endif %}>Select B-BBEE Level</option>
+                                    <option value="1" {% if profile.bbbee_level == '1' %}selected{% endif %}>Level 1</option>
+                                    <option value="2" {% if profile.bbbee_level == '2' %}selected{% endif %}>Level 2</option>
+                                    <option value="3" {% if profile.bbbee_level == '3' %}selected{% endif %}>Level 3</option>
+                                    <option value="4" {% if profile.bbbee_level == '4' %}selected{% endif %}>Level 4</option>
+                                    <option value="5" {% if profile.bbbee_level == '5' %}selected{% endif %}>Level 5</option>
+                                    <option value="6" {% if profile.bbbee_level == '6' %}selected{% endif %}>Level 6</option>
+                                    <option value="7" {% if profile.bbbee_level == '7' %}selected{% endif %}>Level 7</option>
+                                    <option value="8" {% if profile.bbbee_level == '8' %}selected{% endif %}>Level 8</option>
+                                    <option value="non_compliant" {% if profile.bbbee_level == 'non_compliant' %}selected{% endif %}>Non-Compliant</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bbbee_certificate" class="form-label">B-BBEE Certificate</label>
+                                <input type="file" class="form-control" id="bbbee_certificate" name="bbbee_certificate" accept=".pdf,.jpg,.jpeg,.png">
+                                {% if profile.bbbee_certificate %}
+                                <div class="mt-2">
+                                    <a href="{{ profile.bbbee_certificate.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-file-earmark"></i> View Current Certificate
+                                    </a>
+                                    <div class="form-check mt-1">
+                                        <input class="form-check-input" type="checkbox" id="remove_bbbee_certificate" name="remove_bbbee_certificate">
+                                        <label class="form-check-label" for="remove_bbbee_certificate">Remove certificate</label>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Industry & Services</h5>
+                    
+                    <div class="mb-3">
+                        <label for="industry_sectors" class="form-label">Industry Sectors</label>
+                        <select class="form-select" id="industry_sectors" name="industry_sectors" multiple size="5">
+                            <option value="agriculture" {% if 'agriculture' in profile.industry_sectors %}selected{% endif %}>Agriculture & Farming</option>
+                            <option value="construction" {% if 'construction' in profile.industry_sectors %}selected{% endif %}>Construction & Engineering</option>
+                            <option value="education" {% if 'education' in profile.industry_sectors %}selected{% endif %}>Education & Training</option>
+                            <option value="energy" {% if 'energy' in profile.industry_sectors %}selected{% endif %}>Energy & Utilities</option>
+                            <option value="financial" {% if 'financial' in profile.industry_sectors %}selected{% endif %}>Financial Services</option>
+                            <option value="healthcare" {% if 'healthcare' in profile.industry_sectors %}selected{% endif %}>Healthcare & Medical</option>
+                            <option value="ict" {% if 'ict' in profile.industry_sectors %}selected{% endif %}>ICT & Telecommunications</option>
+                            <option value="manufacturing" {% if 'manufacturing' in profile.industry_sectors %}selected{% endif %}>Manufacturing</option>
+                            <option value="mining" {% if 'mining' in profile.industry_sectors %}selected{% endif %}>Mining & Minerals</option>
+                            <option value="professional" {% if 'professional' in profile.industry_sectors %}selected{% endif %}>Professional Services</option>
+                            <option value="retail" {% if 'retail' in profile.industry_sectors %}selected{% endif %}>Retail & Consumer Goods</option>
+                            <option value="tourism" {% if 'tourism' in profile.industry_sectors %}selected{% endif %}>Tourism & Hospitality</option>
+                            <option value="transport" {% if 'transport' in profile.industry_sectors %}selected{% endif %}>Transport & Logistics</option>
+                        </select>
+                        <div class="form-text">Hold Ctrl (or Cmd) to select multiple sectors</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="services_offered" class="form-label">Services Offered</label>
+                        <textarea class="form-control" id="services_offered" name="services_offered" rows="3" placeholder="List your main products or services, separated by commas">{{ profile.services_offered }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="certifications" class="form-label">Certifications & Accreditations</label>
+                        <textarea class="form-control" id="certifications" name="certifications" rows="3" placeholder="List any relevant certifications or accreditations">{{ profile.certifications }}</textarea>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Experience & References</h5>
+                    
+                    <div class="mb-3">
+                        <label for="previous_contracts" class="form-label">Previous Government Contracts</label>
+                        <textarea class="form-control" id="previous_contracts" name="previous_contracts" rows="3" placeholder="List any previous government contracts or tenders">{{ profile.previous_contracts }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="references" class="form-label">References</label>
+                        <textarea class="form-control" id="references" name="references" rows="3" placeholder="List references from previous clients">{{ profile.references }}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Profile Completeness</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ profile_completeness }}%;" aria-valuenow="{{ profile_completeness }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ profile_completeness }}%
+                    </div>
+                </div>
+                
+                <h6 class="mt-4">Missing Information:</h6>
+                <ul class="list-group">
+                    {% for item in missing_items %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.name }}
+                        <span class="badge bg-warning text-dark rounded-pill">{{ item.importance }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-success">
+                        <i class="bi bi-check-circle"></i> Profile complete!
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle"></i> A complete profile improves your tender matching and readiness assessment.
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Document Repository</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload and manage important company documents for quick access when applying for tenders.</p>
+                
+                <form method="post" action="{% url 'tenders:upload_company_document' %}" enctype="multipart/form-data" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="document_type" class="form-label">Document Type</label>
+                        <select class="form-select" id="document_type" name="document_type" required>
+                            <option value="" selected disabled>Select document type</option>
+                            <option value="tax_clearance">Tax Clearance Certificate</option>
+                            <option value="company_registration">Company Registration</option>
+                            <option value="bbbee_certificate">B-BBEE Certificate</option>
+                            <option value="cidb_registration">CIDB Registration</option>
+                            <option value="letter_of_good_standing">Letter of Good Standing</option>
+                            <option value="financial_statements">Financial Statements</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="document_file" class="form-label">Document File</label>
+                        <input type="file" class="form-control" id="document_file" name="document_file" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="document_description" class="form-label">Description (Optional)</label>
+                        <input type="text" class="form-control" id="document_description" name="document_description">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cloud-upload"></i> Upload Document
+                        </button>
+                    </div>
+                </form>
+                
+                <h6>Uploaded Documents:</h6>
+                <div class="list-group">
+                    {% for doc in company_documents %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ doc.get_document_type_display }}</h6>
+                            <small class="text-muted">{{ doc.uploaded_at|date:"M d, Y" }} - {{ doc.description }}</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{{ doc.document_file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form method="post" action="{% url 'tenders:delete_company_document' doc.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this document?');">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item text-center text-muted">
+                        No documents uploaded yet
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enable Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+    
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+</script>
+{% endblock %}

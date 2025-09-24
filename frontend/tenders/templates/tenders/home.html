@@ -1,0 +1,119 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}Home - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-md-6">
+        <h1 class="display-4 fw-bold">Navigate Public Procurement with Confidence</h1>
+        <p class="lead">Tender Insight Hub helps South African SMEs find, analyze, and apply for public tenders with AI-powered insights and collaboration tools.</p>
+        {% if user.is_authenticated %}
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="{% url 'tenders:search' %}" class="btn btn-primary btn-lg px-4 me-md-2">Search Tenders</a>
+            <a href="{% url 'tenders:workspace' %}" class="btn btn-outline-secondary btn-lg px-4">My Workspace</a>
+        </div>
+        {% else %}
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="{% url 'tenders:public_search' %}" class="btn btn-primary btn-lg px-4 me-md-2">Browse Tenders</a>
+            <a href="{% url 'tenders:public_workspace' %}" class="btn btn-outline-primary btn-lg px-4 me-md-2">Workspace</a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <img src="https://via.placeholder.com/600x400?text=Tender+Insight+Hub" class="img-fluid rounded" alt="Tender Insight Hub">
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12 text-center">
+        <h2 class="fw-bold">How It Works</h2>
+        <p class="lead">Our platform simplifies the tender process from discovery to application</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-search" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 class="card-title">Find Opportunities</h3>
+                <p class="card-text">Search and filter tenders by keywords, location, budget, and more to find the perfect match for your business.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 class="card-title">Analyze Documents</h3>
+                <p class="card-text">Our AI summarizes complex tender documents, highlighting key requirements and deadlines.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-check-circle" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 class="card-title">Check Readiness</h3>
+                <p class="card-text">Get a personalized suitability score and checklist to assess if your company meets the tender requirements.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-people" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 class="card-title">Collaborate</h3>
+                <p class="card-text">Work with your team to track progress, assign tasks, and make decisions together.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-bar-chart" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 class="card-title">Gain Insights</h3>
+                <p class="card-text">Access analytics on government spending patterns and tender trends to inform your strategy.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-lightning" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                </div>
+                <h3 class="card-title">Apply Confidently</h3>
+                <p class="card-text">Submit stronger applications with a clear understanding of requirements and your competitive position.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-12 text-center">
+        <h2 class="fw-bold">Ready to transform your tender process?</h2>
+        <p class="lead mb-4">Join thousands of South African SMEs already using Tender Insight Hub</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'tenders:search' %}" class="btn btn-primary btn-lg px-4">Start Searching</a>
+        {% else %}
+        <a href="/register/" class="btn btn-primary btn-lg px-4">Sign Up Now</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

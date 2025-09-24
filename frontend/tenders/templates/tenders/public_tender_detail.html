@@ -1,0 +1,171 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}{{ tender.title }} - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'tenders:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'tenders:public_search' %}">Browse Tenders</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ tender.title|truncatechars:50 }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h1 class="card-title h3 mb-0">{{ tender.title }}</h1>
+                {% if in_workspace %}
+                <span class="badge bg-success">In Workspace</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Buyer</h6>
+                        <p>{{ tender.buyer_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Province</h6>
+                        <p>{{ tender.province|default:"Not specified" }}</p>
+                    </div>
+                </div>
+                
+                {% if tender.budget_min or tender.budget_max %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Budget Range</h6>
+                        <p>
+                            {{ tender.value_currency|default:"ZAR" }}
+                            {% if tender.budget_min and tender.budget_max %}
+                                {{ tender.budget_min|floatformat:0 }} - {{ tender.budget_max|floatformat:0 }}
+                            {% elif tender.budget_min %}
+                                {{ tender.budget_min|floatformat:0 }}+
+                            {% elif tender.budget_max %}
+                                Up to {{ tender.budget_max|floatformat:0 }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if tender.tender_period_end_date %}
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Deadline</h6>
+                        <p>{{ tender.tender_period_end_date|date:"F d, Y" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if tender.description %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Description</h6>
+                    <p>{{ tender.description }}</p>
+                </div>
+                {% endif %}
+                
+                {% if tender.summary %}
+                <div class="mb-3">
+                    <h6 class="text-muted">Summary</h6>
+                    <p>{{ tender.summary }}</p>
+                </div>
+                {% endif %}
+                
+                {% if tender.ocid %}
+                <div class="mb-3">
+                    <h6 class="text-muted">OCID</h6>
+                    <p><code>{{ tender.ocid }}</code></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Workspace Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Workspace Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if in_workspace %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> This tender is in your workspace
+                    </div>
+                    
+                    {% if workspace_status %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Status:</label>
+                        <form method="post" action="{% url 'tenders:public_update_workspace_status' tender.tender_id %}">
+                            {% csrf_token %}
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if workspace_status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'tenders:public_remove_from_workspace' tender.tender_id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Remove this tender from your workspace?')">
+                            <i class="bi bi-trash"></i> Remove from Workspace
+                        </button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'tenders:public_add_to_workspace' tender.tender_id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle"></i> Add to Workspace
+                        </button>
+                    </form>
+                {% endif %}
+                
+                <hr>
+                
+                <a href="{% url 'tenders:public_workspace' %}" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="bi bi-folder"></i> View My Workspace
+                </a>
+                
+                <a href="{% url 'tenders:public_search' %}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-left"></i> Back to Search
+                </a>
+            </div>
+        </div>
+        
+        <!-- Upgrade Notice -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Want More Features?</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Sign up for a free account to access:</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check text-success"></i> AI-powered readiness checks</li>
+                    <li><i class="bi bi-check text-success"></i> Document analysis</li>
+                    <li><i class="bi bi-check text-success"></i> Team collaboration</li>
+                    <li><i class="bi bi-check text-success"></i> Advanced analytics</li>
+                    <li><i class="bi bi-check text-success"></i> Tender notifications</li>
+                </ul>
+                <a href="{% url 'tenders:register' %}" class="btn btn-success w-100">
+                    Create Free Account
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Warning -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <h6><i class="bi bi-exclamation-triangle"></i> Session-based Workspace</h6>
+            <p class="mb-0">Your workspace is stored in your browser session and will be lost when you close your browser. <a href="{% url 'tenders:register' %}">Create a free account</a> to save your workspace permanently.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

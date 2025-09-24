@@ -1,0 +1,718 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}Account Settings - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Account Settings</h1>
+        <p class="lead">Manage your account preferences and settings</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="list-group">
+            <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                <i class="bi bi-person me-2"></i> Profile
+            </a>
+            <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-bell me-2"></i> Notifications
+            </a>
+            <a href="#preferences" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-sliders me-2"></i> Preferences
+            </a>
+            <a href="#api" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-code-slash me-2"></i> API Access
+            </a>
+            <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-shield-lock me-2"></i> Security
+            </a>
+            <a href="#team" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-people me-2"></i> Team Management
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- Profile Settings -->
+            <div class="tab-pane fade show active" id="profile">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Profile Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'tenders:update_profile' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-3 text-center">
+                                    <div class="position-relative d-inline-block">
+                                        {% if user.profile_image %}
+                                        <img src="{{ user.profile_image.url }}" alt="Profile Image" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 4rem;"></i>
+                                        </div>
+                                        {% endif %}
+                                        <label for="profile_image" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" style="cursor: pointer;">
+                                            <i class="bi bi-camera-fill"></i>
+                                            <input type="file" id="profile_image" name="profile_image" class="d-none" accept="image/*">
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-9">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="first_name" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="last_name" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="phone" class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="job_title" class="form-label">Job Title</label>
+                                <input type="text" class="form-control" id="job_title" name="job_title" value="{{ user.job_title }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea class="form-control" id="bio" name="bio" rows="3">{{ user.bio }}</textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification Settings -->
+            <div class="tab-pane fade" id="notifications">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Notification Preferences</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'tenders:update_notifications' %}">
+                            {% csrf_token %}
+                            
+                            <h6 class="mb-3">Email Notifications</h6>
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="email_new_tenders" name="email_new_tenders" {% if notifications.email_new_tenders %}checked{% endif %}>
+                                <label class="form-check-label" for="email_new_tenders">New matching tenders</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="email_deadline_reminders" name="email_deadline_reminders" {% if notifications.email_deadline_reminders %}checked{% endif %}>
+                                <label class="form-check-label" for="email_deadline_reminders">Deadline reminders</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="email_task_assignments" name="email_task_assignments" {% if notifications.email_task_assignments %}checked{% endif %}>
+                                <label class="form-check-label" for="email_task_assignments">Task assignments</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="email_document_updates" name="email_document_updates" {% if notifications.email_document_updates %}checked{% endif %}>
+                                <label class="form-check-label" for="email_document_updates">Document updates</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="email_weekly_digest" name="email_weekly_digest" {% if notifications.email_weekly_digest %}checked{% endif %}>
+                                <label class="form-check-label" for="email_weekly_digest">Weekly digest</label>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6 class="mb-3">In-App Notifications</h6>
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="app_new_tenders" name="app_new_tenders" {% if notifications.app_new_tenders %}checked{% endif %}>
+                                <label class="form-check-label" for="app_new_tenders">New matching tenders</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="app_deadline_reminders" name="app_deadline_reminders" {% if notifications.app_deadline_reminders %}checked{% endif %}>
+                                <label class="form-check-label" for="app_deadline_reminders">Deadline reminders</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="app_task_assignments" name="app_task_assignments" {% if notifications.app_task_assignments %}checked{% endif %}>
+                                <label class="form-check-label" for="app_task_assignments">Task assignments</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="app_document_updates" name="app_document_updates" {% if notifications.app_document_updates %}checked{% endif %}>
+                                <label class="form-check-label" for="app_document_updates">Document updates</label>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Save Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Preferences -->
+            <div class="tab-pane fade" id="preferences">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">System Preferences</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'tenders:update_preferences' %}">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="default_view" class="form-label">Default Dashboard View</label>
+                                <select class="form-select" id="default_view" name="default_view">
+                                    <option value="summary" {% if preferences.default_view == 'summary' %}selected{% endif %}>Summary</option>
+                                    <option value="workspace" {% if preferences.default_view == 'workspace' %}selected{% endif %}>Workspace</option>
+                                    <option value="analytics" {% if preferences.default_view == 'analytics' %}selected{% endif %}>Analytics</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="date_format" class="form-label">Date Format</label>
+                                <select class="form-select" id="date_format" name="date_format">
+                                    <option value="MM/DD/YYYY" {% if preferences.date_format == 'MM/DD/YYYY' %}selected{% endif %}>MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY" {% if preferences.date_format == 'DD/MM/YYYY' %}selected{% endif %}>DD/MM/YYYY</option>
+                                    <option value="YYYY-MM-DD" {% if preferences.date_format == 'YYYY-MM-DD' %}selected{% endif %}>YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="language" class="form-label">Language</label>
+                                <select class="form-select" id="language" name="language">
+                                    <option value="en" {% if preferences.language == 'en' %}selected{% endif %}>English</option>
+                                    <option value="fr" {% if preferences.language == 'fr' %}selected{% endif %}>French</option>
+                                    <option value="es" {% if preferences.language == 'es' %}selected{% endif %}>Spanish</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="theme" class="form-label">Theme</label>
+                                <select class="form-select" id="theme" name="theme">
+                                    <option value="light" {% if preferences.theme == 'light' %}selected{% endif %}>Light</option>
+                                    <option value="dark" {% if preferences.theme == 'dark' %}selected{% endif %}>Dark</option>
+                                    <option value="system" {% if preferences.theme == 'system' %}selected{% endif %}>System Default</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="enable_ai_features" name="enable_ai_features" {% if preferences.enable_ai_features %}checked{% endif %}>
+                                <label class="form-check-label" for="enable_ai_features">Enable AI-powered features</label>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Save Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- API Access -->
+            <div class="tab-pane fade" id="api">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">API Access</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            API access allows you to integrate Tender Insight Hub with your existing systems.
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Your API Keys</h6>
+                            {% if api_keys %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Key Name</th>
+                                            <th>Created</th>
+                                            <th>Last Used</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for key in api_keys %}
+                                        <tr>
+                                            <td>{{ key.name }}</td>
+                                            <td>{{ key.created_at|date:"M d, Y" }}</td>
+                                            <td>{{ key.last_used|date:"M d, Y" }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewKeyModal{{ key.id }}">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <form method="post" action="{% url 'tenders:revoke_api_key' key.id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">You don't have any API keys yet.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Generate New API Key</h6>
+                            <form method="post" action="{% url 'tenders:generate_api_key' %}" class="row g-3">
+                                {% csrf_token %}
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="key_name" name="key_name" placeholder="Key Name (e.g., Development, Production)" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-key"></i> Generate Key
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>API Documentation</h6>
+                            <p>Access our API documentation to learn how to integrate with our platform:</p>
+                            <a href="{% url 'tenders:api_docs' %}" class="btn btn-outline-primary" target="_blank">
+                                <i class="bi bi-file-earmark-code"></i> View API Documentation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Settings -->
+            <div class="tab-pane fade" id="security">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Password</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'tenders:change_password' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password" name="new_password" required>
+                                <div class="form-text">Password must be at least 8 characters and include a mix of letters, numbers, and symbols.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-key"></i> Change Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Two-Factor Authentication</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.two_factor_enabled %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Two-factor authentication is currently enabled for your account.
+                        </div>
+                        <form method="post" action="{% url 'tenders:disable_2fa' %}">
+                            {% csrf_token %}
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-shield-x"></i> Disable Two-Factor Authentication
+                                </button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-shield-exclamation me-2"></i>
+                            Two-factor authentication is currently disabled for your account.
+                        </div>
+                        <p>Enable two-factor authentication to add an extra layer of security to your account.</p>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'tenders:enable_2fa' %}" class="btn btn-primary">
+                                <i class="bi bi-shield-plus"></i> Enable Two-Factor Authentication
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Login Sessions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Device</th>
+                                        <th>Location</th>
+                                        <th>Last Active</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in active_sessions %}
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-{{ session.device_icon }} me-2"></i>
+                                            {{ session.device }}
+                                            {% if session.current %}
+                                            <span class="badge bg-success ms-2">Current</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ session.location }}</td>
+                                        <td>{{ session.last_active }}</td>
+                                        <td>
+                                            {% if not session.current %}
+                                            <form method="post" action="{% url 'tenders:terminate_session' session.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-x-circle"></i> Terminate
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                            <form method="post" action="{% url 'tenders:terminate_all_sessions' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-x-circle"></i> Terminate All Other Sessions
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Management -->
+            <div class="tab-pane fade" id="team">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Team Members</h5>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                            <i class="bi bi-person-plus"></i> Invite Member
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for member in team_members %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if member.profile_image %}
+                                                <img src="{{ member.profile_image.url }}" alt="Profile" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                                {% else %}
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-person-fill text-white" style="font-size: 1rem;"></i>
+                                                </div>
+                                                {% endif %}
+                                                {{ member.name }}
+                                                {% if member.is_owner %}
+                                                <span class="badge bg-primary ms-2">Owner</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>{{ member.email }}</td>
+                                        <td>
+                                            {% if member.is_owner %}
+                                            Owner
+                                            {% else %}
+                                            <select class="form-select form-select-sm role-select" data-member-id="{{ member.id }}">
+                                                <option value="admin" {% if member.role == 'admin' %}selected{% endif %}>Admin</option>
+                                                <option value="editor" {% if member.role == 'editor' %}selected{% endif %}>Editor</option>
+                                                <option value="viewer" {% if member.role == 'viewer' %}selected{% endif %}>Viewer</option>
+                                            </select>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if member.status == 'active' %}
+                                            <span class="badge bg-success">Active</span>
+                                            {% elif member.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if not member.is_owner and not member.is_current_user %}
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="memberActions{{ member.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="memberActions{{ member.id }}">
+                                                    <li>
+                                                        <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#resendInviteModal{{ member.id }}">
+                                                            <i class="bi bi-envelope"></i> Resend Invite
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <form method="post" action="{% url 'tenders:remove_team_member' member.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="dropdown-item text-danger">
+                                                                <i class="bi bi-person-x"></i> Remove
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No team members found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Pending Invitations</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if pending_invitations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Sent</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for invite in pending_invitations %}
+                                    <tr>
+                                        <td>{{ invite.email }}</td>
+                                        <td>{{ invite.role|title }}</td>
+                                        <td>{{ invite.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <form method="post" action="{% url 'tenders:resend_invitation' invite.id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-envelope"></i> Resend
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'tenders:cancel_invitation' invite.id %}" class="d-inline ms-2">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-x-circle"></i> Cancel
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No pending invitations</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invite Team Member Modal -->
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inviteModalLabel">Invite Team Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'tenders:invite_team_member' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="invite_email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="invite_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="invite_role" class="form-label">Role</label>
+                        <select class="form-select" id="invite_role" name="role" required>
+                            <option value="admin">Admin</option>
+                            <option value="editor" selected>Editor</option>
+                            <option value="viewer">Viewer</option>
+                        </select>
+                        <div class="form-text">
+                            <strong>Admin:</strong> Full access to all features<br>
+                            <strong>Editor:</strong> Can edit tenders and workspace items<br>
+                            <strong>Viewer:</strong> Read-only access
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="invite_message" class="form-label">Personal Message (Optional)</label>
+                        <textarea class="form-control" id="invite_message" name="message" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Invitation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preview profile image before upload
+        const profileImageInput = document.getElementById('profile_image');
+        if (profileImageInput) {
+            profileImageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = profileImageInput.closest('.position-relative').querySelector('img');
+                        if (img) {
+                            img.src = e.target.result;
+                        } else {
+                            const div = profileImageInput.closest('.position-relative').querySelector('div');
+                            if (div) {
+                                const newImg = document.createElement('img');
+                                newImg.src = e.target.result;
+                                newImg.alt = 'Profile Image';
+                                newImg.className = 'rounded-circle img-thumbnail';
+                                newImg.style = 'width: 150px; height: 150px; object-fit: cover;';
+                                div.parentNode.replaceChild(newImg, div);
+                            }
+                        }
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+        
+        // Handle role changes
+        const roleSelects = document.querySelectorAll('.role-select');
+        roleSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                const memberId = this.dataset.memberId;
+                const newRole = this.value;
+                
+                fetch('{% url "tenders:update_team_member_role" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        member_id: memberId,
+                        role: newRole
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success toast or notification
+                        console.log('Role updated successfully');
+                    } else {
+                        // Show error and revert selection
+                        console.error('Failed to update role');
+                        this.value = this.dataset.originalRole;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.value = this.dataset.originalRole;
+                });
+            });
+            
+            // Store original role for reverting on error
+            select.dataset.originalRole = select.value;
+        });
+        
+        // Password validation
+        const newPasswordInput = document.getElementById('new_password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        
+        if (newPasswordInput && confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', function() {
+                if (this.value !== newPasswordInput.value) {
+                    this.setCustomValidity('Passwords do not match');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            
+            newPasswordInput.addEventListener('input', function() {
+                if (confirmPasswordInput.value && this.value !== confirmPasswordInput.value) {
+                    confirmPasswordInput.setCustomValidity('Passwords do not match');
+                } else {
+                    confirmPasswordInput.setCustomValidity('');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

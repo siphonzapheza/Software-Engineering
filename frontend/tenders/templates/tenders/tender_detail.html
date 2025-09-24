@@ -1,0 +1,342 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}{{ tender.title }} - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'tenders:search' %}" class="btn btn-outline-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Back to Search
+        </a>
+        
+        <div class="d-flex justify-content-between align-items-start">
+            <h1>{{ tender.title }}</h1>
+            {% if readiness_score %}
+            <div class="text-center">
+                <div class="score-badge {% if readiness_score.suitability_score >= 80 %}score-high{% elif readiness_score.suitability_score >= 50 %}score-medium{% else %}score-low{% endif %} mb-2">
+                    {{ readiness_score.suitability_score }}%
+                </div>
+                <span class="d-block">Suitability</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Tender Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Buyer:</div>
+                    <div class="col-md-8">{{ tender.buyer_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Province:</div>
+                    <div class="col-md-8">{{ tender.province }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Budget:</div>
+                    <div class="col-md-8">
+                        {% if tender.budget_min and tender.budget_max %}
+                            {{ tender.budget_min|floatformat:2 }} - {{ tender.budget_max|floatformat:2 }} {{ tender.value_currency }}
+                        {% elif tender.budget_max %}
+                            Up to {{ tender.budget_max|floatformat:2 }} {{ tender.value_currency }}
+                        {% elif tender.budget_min %}
+                            From {{ tender.budget_min|floatformat:2 }} {{ tender.value_currency }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Closing Date:</div>
+                    <div class="col-md-8">{{ tender.tender_period_end_date|date:"F d, Y" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">OCID:</div>
+                    <div class="col-md-8">{{ tender.ocid }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Description:</div>
+                    <div class="col-md-8">{{ tender.description }}</div>
+                </div>
+                {% if tender.summary %}
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Summary:</div>
+                    <div class="col-md-8">{{ tender.summary }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if document_summaries %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Document Summaries</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="documentAccordion">
+                    {% for doc in document_summaries %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                                {{ doc.filename }} <span class="ms-2 badge bg-secondary">{{ doc.content_type }}</span>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#documentAccordion">
+                            <div class="accordion-body">
+                                <h6>Summary:</h6>
+                                <p>{{ doc.summary }}</p>
+                                <h6>Extracted Text:</h6>
+                                <div class="border p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+                                    <pre class="mb-0">{{ doc.text_content }}</pre>
+                                </div>
+                                <div class="mt-3 d-flex gap-2">
+                                    <a href="{% url 'tenders:download_document' tender.tender_id doc.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> Download Document
+                                    </a>
+                                    <a href="{% url 'tenders:document_summary' tender.tender_id doc.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if in_workspace %}
+                <form method="post" action="{% url 'tenders:remove_from_workspace' tender.tender_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger mb-3 w-100">
+                        <i class="bi bi-trash"></i> Remove from Workspace
+                    </button>
+                </form>
+                <form method="post" action="{% url 'tenders:update_workspace_status' tender.tender_id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Update Status:</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="interested" {% if workspace_item.status == 'interested' %}selected{% endif %}>Interested</option>
+                            <option value="not_eligible" {% if workspace_item.status == 'not_eligible' %}selected{% endif %}>Not Eligible</option>
+                            <option value="submitted" {% if workspace_item.status == 'submitted' %}selected{% endif %}>Submitted</option>
+                            <option value="pending" {% if workspace_item.status == 'pending' %}selected{% endif %}>Pending Status</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-circle"></i> Update Status
+                    </button>
+                </form>
+                {% else %}
+                <form method="post" action="{% url 'tenders:add_to_workspace' tender.tender_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Add to Workspace
+                    </button>
+                </form>
+                {% endif %}
+                
+                <hr>
+                
+                {% if user.team.company_profile %}
+                <form method="post" action="{% url 'tenders:check_readiness' tender.tender_id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-info w-100 mb-3">
+                        <i class="bi bi-clipboard-check"></i> Check Readiness
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <small>Complete your company profile to check readiness</small>
+                </div>
+                {% endif %}
+                
+                <form method="post" action="{% url 'tenders:upload_document' tender.tender_id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="document" class="form-label">Upload Document:</label>
+                        <input type="file" name="document" id="document" class="form-control" required>
+                        <div class="form-text">Upload PDF, DOCX, or ZIP files for AI summarization</div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-cloud-upload"></i> Upload & Summarize
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        {% if readiness_score %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Readiness Assessment</h5>
+            </div>
+            <div class="card-body">
+                <h6>Checklist:</h6>
+                <ul class="list-group mb-3">
+                    {% for item in readiness_score.checklist %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ item.name }}
+                        {% if item.met %}
+                        <span class="badge bg-success rounded-pill"><i class="bi bi-check-lg"></i></span>
+                        {% else %}
+                        <span class="badge bg-danger rounded-pill"><i class="bi bi-x-lg"></i></span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <h6>Recommendation:</h6>
+                <p>{{ readiness_score.recommendation }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if in_workspace %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Notes</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+                    <i class="bi bi-plus-lg"></i> Add Note
+                </button>
+            </div>
+            <div class="card-body">
+                {% if notes %}
+                <div class="list-group">
+                    {% for note in notes %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ note.created_at|date:"M d, Y" }} by {{ note.created_by.username }}</small>
+                        </div>
+                        <p class="mb-1 mt-2">{{ note.content }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No notes added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Tasks</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                    <i class="bi bi-plus-lg"></i> Add Task
+                </button>
+            </div>
+            <div class="card-body">
+                {% if tasks %}
+                <div class="list-group">
+                    {% for task in tasks %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ task.title }}</h6>
+                                <small class="text-muted">Due: {{ task.due_date|date:"M d, Y" }} | Assigned to: {{ task.assigned_to.username }}</small>
+                            </div>
+                            <form method="post" action="{% url 'tenders:update_task_status' task.id %}">
+                                {% csrf_token %}
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="task{{ task.id }}" name="completed" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
+                                </div>
+                            </form>
+                        </div>
+                        <p class="mb-1 mt-2">{{ task.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No tasks added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'tenders:add_note' tender.tender_id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNoteModalLabel">Add Note</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Note Content:</label>
+                        <textarea class="form-control" id="noteContent" name="content" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'tenders:add_task' tender.tender_id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskModalLabel">Add Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="taskTitle" class="form-label">Title:</label>
+                        <input type="text" class="form-control" id="taskTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDescription" class="form-label">Description:</label>
+                        <textarea class="form-control" id="taskDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDueDate" class="form-label">Due Date:</label>
+                        <input type="date" class="form-control" id="taskDueDate" name="due_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskAssignedTo" class="form-label">Assign To:</label>
+                        <select class="form-select" id="taskAssignedTo" name="assigned_to">
+                            {% for member in team_members %}
+                            <option value="{{ member.id }}" {% if member.id == user.id %}selected{% endif %}>{{ member.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

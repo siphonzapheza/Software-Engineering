@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Limit Reached{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h3 class="mb-0">Weekly Search Limit Reached</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-exclamation-circle fa-4x text-warning"></i>
+                    </div>
+                    
+                    <h4 class="text-center mb-4">You've reached your weekly tender search limit</h4>
+                    
+                    <p class="lead">
+                        Your current Free plan allows for up to 3 tender searches per week. 
+                        To continue searching, please consider upgrading your subscription.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <h5>Upgrade your plan to get:</h5>
+                        <ul>
+                            <li><strong>Basic Plan:</strong> Unlimited tender searches, AI summaries, and readiness checks</li>
+                            <li><strong>Pro Plan:</strong> All Basic features plus export capabilities and unlimited team members</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'subscription_plans' %}" class="btn btn-primary btn-lg">View Subscription Plans</a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-lg ml-2">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

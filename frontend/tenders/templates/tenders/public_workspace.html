@@ -1,0 +1,260 @@
+{% extends 'tenders/base.html' %}
+
+{% block title %}My Workspace - Tender Insight Hub{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>My Workspace</h1>
+        <p class="lead">Manage your tracked tenders and opportunities. <a href="{% url 'tenders:register' %}">Sign up</a> to save your workspace permanently and access advanced features.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="workspaceTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All ({{ workspace_items|length }})</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="interested-tab" data-bs-toggle="tab" data-bs-target="#interested" type="button" role="tab" aria-controls="interested" aria-selected="false">Interested ({{ interested_count }})</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="submitted-tab" data-bs-toggle="tab" data-bs-target="#submitted" type="button" role="tab" aria-controls="submitted" aria-selected="false">Submitted ({{ submitted_count }})</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="not-eligible-tab" data-bs-toggle="tab" data-bs-target="#not-eligible" type="button" role="tab" aria-controls="not-eligible" aria-selected="false">Not Eligible ({{ not_eligible_count }})</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="false">Pending ({{ pending_count }})</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="workspaceTabsContent">
+                    <!-- All Tenders Tab -->
+                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                        {% if workspace_items %}
+                            <div class="row">
+                                {% for item in workspace_items %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ item.title|truncatechars:80 }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ item.buyer_name }}</h6>
+                                            <p class="card-text">{{ item.description|truncatechars:150 }}</p>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                {% if item.province %}
+                                                <span class="badge bg-primary">{{ item.province }}</span>
+                                                {% endif %}
+                                                {% if item.budget_max %}
+                                                <span class="badge bg-info">{{ item.value_currency }} {{ item.budget_min|floatformat:0 }} - {{ item.budget_max|floatformat:0 }}</span>
+                                                {% endif %}
+                                            </div>
+                                            {% if item.tender_period_end_date %}
+                                            <p class="card-text"><small class="text-muted">Deadline: {{ item.tender_period_end_date|date:"M d, Y" }}</small></p>
+                                            {% endif %}
+                                            
+                                            <!-- Status Selection -->
+                                            <div class="mb-2">
+                                                <label class="form-label small">Status:</label>
+                                                <form method="post" action="{% url 'tenders:public_update_workspace_status' item.tender_id %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                        {% for value, label in status_choices %}
+                                                        <option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-between align-items-center">
+                                            <a href="{% url 'tenders:public_tender_detail' item.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            <form method="post" action="{% url 'tenders:public_remove_from_workspace' item.tender_id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this tender from your workspace?')">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-inbox display-1 text-muted"></i>
+                                <h4 class="mt-3">Your workspace is empty</h4>
+                                <p class="text-muted">Start adding tenders from the search results</p>
+                                <a href="{% url 'tenders:public_search' %}" class="btn btn-primary mt-2">
+                                    <i class="bi bi-search"></i> Browse Tenders
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Interested Tab -->
+                    <div class="tab-pane fade" id="interested" role="tabpanel" aria-labelledby="interested-tab">
+                        {% if interested_items %}
+                            <div class="row">
+                                {% for item in interested_items %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ item.title|truncatechars:80 }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ item.buyer_name }}</h6>
+                                            <p class="card-text">{{ item.description|truncatechars:150 }}</p>
+                                            {% if item.tender_period_end_date %}
+                                            <p class="card-text"><small class="text-muted">Deadline: {{ item.tender_period_end_date|date:"M d, Y" }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-between align-items-center">
+                                            <a href="{% url 'tenders:public_tender_detail' item.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            <form method="post" action="{% url 'tenders:public_remove_from_workspace' item.tender_id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this tender from your workspace?')">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-star text-muted display-1"></i>
+                                <h4 class="mt-3">No interested tenders</h4>
+                                <p class="text-muted">Mark tenders as interested to track them here</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Submitted Tab -->
+                    <div class="tab-pane fade" id="submitted" role="tabpanel" aria-labelledby="submitted-tab">
+                        {% if submitted_items %}
+                            <div class="row">
+                                {% for item in submitted_items %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ item.title|truncatechars:80 }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ item.buyer_name }}</h6>
+                                            <p class="card-text">{{ item.description|truncatechars:150 }}</p>
+                                            {% if item.tender_period_end_date %}
+                                            <p class="card-text"><small class="text-muted">Deadline: {{ item.tender_period_end_date|date:"M d, Y" }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-between align-items-center">
+                                            <a href="{% url 'tenders:public_tender_detail' item.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            <form method="post" action="{% url 'tenders:public_remove_from_workspace' item.tender_id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this tender from your workspace?')">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-check2-circle text-muted display-1"></i>
+                                <h4 class="mt-3">No submitted tenders</h4>
+                                <p class="text-muted">Mark tenders as submitted when you've applied</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Not Eligible Tab -->
+                    <div class="tab-pane fade" id="not-eligible" role="tabpanel" aria-labelledby="not-eligible-tab">
+                        {% if not_eligible_items %}
+                            <div class="row">
+                                {% for item in not_eligible_items %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ item.title|truncatechars:80 }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ item.buyer_name }}</h6>
+                                            <p class="card-text">{{ item.description|truncatechars:150 }}</p>
+                                            {% if item.tender_period_end_date %}
+                                            <p class="card-text"><small class="text-muted">Deadline: {{ item.tender_period_end_date|date:"M d, Y" }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-between align-items-center">
+                                            <a href="{% url 'tenders:public_tender_detail' item.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            <form method="post" action="{% url 'tenders:public_remove_from_workspace' item.tender_id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this tender from your workspace?')">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-x-circle text-muted display-1"></i>
+                                <h4 class="mt-3">No ineligible tenders</h4>
+                                <p class="text-muted">Tenders marked as not eligible will appear here</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Pending Tab -->
+                    <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                        {% if pending_items %}
+                            <div class="row">
+                                {% for item in pending_items %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ item.title|truncatechars:80 }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ item.buyer_name }}</h6>
+                                            <p class="card-text">{{ item.description|truncatechars:150 }}</p>
+                                            {% if item.tender_period_end_date %}
+                                            <p class="card-text"><small class="text-muted">Deadline: {{ item.tender_period_end_date|date:"M d, Y" }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-between align-items-center">
+                                            <a href="{% url 'tenders:public_tender_detail' item.tender_id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                            <form method="post" action="{% url 'tenders:public_remove_from_workspace' item.tender_id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this tender from your workspace?')">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-hourglass-split text-muted display-1"></i>
+                                <h4 class="mt-3">No pending tenders</h4>
+                                <p class="text-muted">Tenders with pending status will appear here</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <h5><i class="bi bi-exclamation-triangle"></i> Session-based Workspace</h5>
+            <p class="mb-2">Your workspace is currently stored in your browser session and will be lost when you close your browser or clear cookies.</p>
+            <p class="mb-0"><a href="{% url 'tenders:register' %}" class="btn btn-success btn-sm">Create a free account</a> to save your workspace permanently and access advanced features like readiness checks and team collaboration.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
