@@ -119,7 +119,7 @@ Outcomes
 
 Backend: FastAPI (Python)
 
-Frontend: ReactJS
+Frontend: Django
 
 SQL Database: Postgress(MySQL)
 
